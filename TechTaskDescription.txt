@@ -1,0 +1,30 @@
+Reqs: 
+	1) Return the latest exchange rates.
+	2) USD as base.
+	3) The result should be printed in format of 2 decimal precisions.
+	4) The data should be loaded to the database. In the next 10 min after user received a response the data will be stored in the database as "actual", for this purpose the field with TIMESTAMP will be used. 
+	5) Exchange calculator. 
+	6) Graph to show the trends for the selected currency. 
+
+Commands: 
+	/list or /lst:
+		The func: 
+			Returns list of all available rates (e.g. DKK: 6.74
+													  HUF: 299.56
+													  ...: ...)
+	/exchange:
+		The func: 
+			by selecting the currency that will be used to exchange and providing the value of that currency user will receive calculated value of that value to the USD.
+	/graph:
+		The func: 
+			by selecting the currency user will receive an image with graph that shows the trend of the currency for the past 7 days.
+
+
+Technologies that I will use:
+	1) REST API to receive data from the server. 
+	2) Matplotlib to build graphs.
+
+Notes: 
+	1) To send the graph to the user I can use file modules to store it and then send using telegram library function - send_photo()
+		https://stackoverflow.com/questions/51222907/how-to-send-a-photo-via-python-telegram-bot
+	2) 
