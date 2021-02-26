@@ -27,13 +27,10 @@ def error(update, context):
 
 
 def list_command(update, context):
-    response_result = []
-
     response = rep.list_response()
-    for data in response:
-        response_result.append(data)
         
-    update.message.reply_text(response_result)
+    for key, value in response.items():
+        update.message.reply_text(key+" : "+str(value))
 
 
 def exchange_command(update, context):

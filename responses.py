@@ -22,18 +22,20 @@ def list_response():
     end_point = f'{base_url}{end_path_latest}'
     result = requests.get(end_point)
 
-    currency = []
-    exchange_rate = []
-    
+    # currency = []
+    # exchange_rate = []
+    result_dict = {}
+
     data = result.json()
     data['rates']
 
     for key, value in data['rates'].items():
-        exchange_rate.append(data['rates'][key])
-        currency.append(key)
+        # exchange_rate.append(data['rates'][key])
+        # currency.append(key)
+        result_dict[key] = data['rates'][key]
 
-    lst = zip(currency, exchange_rate)
+    # lst = zip(currency, exchange_rate)
     # for data in lst:
     #     update.message.reply_text(data)
-    return(lst)
+    return(result_dict)
 
