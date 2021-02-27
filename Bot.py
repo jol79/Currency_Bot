@@ -4,8 +4,11 @@ import responses as rep
 from telegram.ext import *
 
 
+# conversation handler status
 CURRENCY = 0
 VALUE = 1
+HISTORY_CURRENCY = 0
+
 
 print("Bot initialized")
 
@@ -39,7 +42,7 @@ def list_command(update, context):
 def exchange_input_give_currency(update, context):
     update.message.reply_text("Provide currency to exchange in format e.g.'CAD'...")
     
-    # write response from the user to the conversation handler [1]
+    # write response from the user to the conversation handler [0]
     return CURRENCY
 
 
@@ -49,7 +52,7 @@ def exchange_input_amount_USD(update, context):
     context.user_data['currency'] = update.message.text.upper()
 
     update.message.reply_text("Give amount in USD...")
-    # write response from the user to the conversation handler [2]
+    # write response from the user to the conversation handler [1]
     return VALUE
 
 
@@ -63,8 +66,21 @@ def exchange_command(update, context):
     return ConversationHandler.END
 
 
+def history_input_give_currency(update, context):
+    update.message.reply_text("Provide currency to see the history in format e.g.'CAD'...")
+    
+    # write response from the user to the conversation handler [0]
+    return HISTORY_CURRENCY
+
+
 def history_command(update, context):
-    pass
+    currency = update.message.text.upper()
+
+    # contains the path to the image of a graph
+    response = rep.history_response(currency)
+    context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(response, 'rb'))
+
+    return ConversationHandler.END
 
 
 def stop(update, context):
@@ -72,7 +88,7 @@ def stop(update, context):
     return ConversationHandler.END
 
 
-conversion_handler = ConversationHandler(
+conversation_handler_exchange = ConversationHandler(
     # start point
     entry_points=[
         CommandHandler('exchange', exchange_input_give_currency)],
@@ -89,15 +105,25 @@ conversion_handler = ConversationHandler(
 )
 
 
+conversation_handler_history = ConversationHandler(
+    entry_points=[
+        CommandHandler('history', history_input_give_currency)],
+    
+        states = {
+            HISTORY_CURRENCY: [MessageHandler(Filters.text, history_command)]},
+        
+        fallbacks = [CommandHandler('stop', stop)]
+)
+
+
 def main():
     updater = Updater(keys.BOT_TOKEN, use_context=True)
     dp = updater.dispatcher
 
     dp.add_handler(CommandHandler('start', start_command))
     dp.add_handler(CommandHandler('list', list_command))
-    # dp.add_handler(CommandHandler('exchange', exchange_command))
-    dp.add_handler(conversion_handler)
-    dp.add_handler(CommandHandler('history', history_command))
+    dp.add_handler(conversation_handler_exchange)
+    dp.add_handler(conversation_handler_history)
     dp.add_handler(CommandHandler('help', help_command))
 
     dp.add_handler(MessageHandler(Filters.text, handle_message))
