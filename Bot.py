@@ -78,11 +78,10 @@ def history_command(update, context):
 
     # contains the path to the image of a graph
     response = rep.history_response(currency)
-    context.user_data['path'] = response
     context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(response, 'rb'))
 
-    if os.path.exists(context.user_data['path']):
-        os.remove(context.user_data['path'])
+    if os.path.exists(response):
+        os.remove(response)
     else: 
         pass
 
