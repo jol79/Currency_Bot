@@ -52,11 +52,10 @@ def exchange_response(currency, amount):
 
     for key, value in data['rates'].items():
         exchange_rate.append(data['rates'][key])
-        currency.append(key)
+        _currency.append(key)
 
     rate = exchange_rate[0]
 
-    return amount * rate
-
+    return int(amount) * rate
 
 
