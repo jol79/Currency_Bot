@@ -1,5 +1,6 @@
 import credentials as keys
 import responses as rep
+import os
 
 from telegram.ext import *
 
@@ -8,7 +9,6 @@ from telegram.ext import *
 CURRENCY = 0
 VALUE = 1
 HISTORY_CURRENCY = 0
-
 
 print("Bot initialized")
 
@@ -78,7 +78,13 @@ def history_command(update, context):
 
     # contains the path to the image of a graph
     response = rep.history_response(currency)
+    context.user_data['path'] = response
     context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(response, 'rb'))
+
+    if os.path.exists(context.user_data['path']):
+        os.remove(context.user_data['path'])
+    else: 
+        pass
 
     return ConversationHandler.END
 

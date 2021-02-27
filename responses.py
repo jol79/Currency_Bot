@@ -103,9 +103,8 @@ def history_response(currency):
     plt.title(f"{_currency}/{_base} trend in time range {date_from} to {date_until}")
     plt.legend([f'{_currency}'])
 
-    plot_name = f"{_currency} {_base} trend in time range {date_from} to {date_until}.png"
+    plot_name = f"temporary_images/{_currency} {_base} trend in time range {date_from} to {date_until}.png"
 
     fig.savefig(plot_name)
     return plot_name
-
 
