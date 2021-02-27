@@ -59,3 +59,8 @@ def exchange_response(currency, amount):
     return int(amount) * rate
 
 
+def history_response(currency):
+    
+
+
+
