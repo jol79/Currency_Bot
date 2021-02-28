@@ -19,7 +19,7 @@ end_path_latest = 'latest'
 def default_response(user_input):
     message = str(user_input).lower()
 
-    return "Choose options from the list of available commands"
+    return "Choose options from the list of available commands:\n    /list\n    /exchange\n    /history"
 
 
 def list_response():

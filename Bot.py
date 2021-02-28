@@ -9,12 +9,13 @@ from telegram.ext import *
 CURRENCY = 0
 VALUE = 1
 HISTORY_CURRENCY = 0
+CLEAN = 2
 
 print("Bot initialized")
 
 
 def start_command(update, context):
-    update.message.reply_text('Choose anything from available options')
+    update.message.reply_text('Choose anything from available options: \n    /list\n    /exchange\n    /history')
 
 
 def help_command(update, context):
@@ -28,8 +29,11 @@ def handle_message(update, context):
     update.message.reply_text(response)
 
 
-def error(update, context):
-    print(f'Update {update} caused error {context.error}')
+# def error(update, context):
+#     print(f'Update {update} caused error {context.error}')
+def error(bot, update, error):
+    if not (context.error.message == "Message is not modified"):
+        logger.warning('Update "%s" caused error "%s"' % (update, context.error))
 
 
 def list_command(update, context):
@@ -49,7 +53,9 @@ def exchange_input_give_currency(update, context):
 # CURRENCY state
 def exchange_input_amount_USD(update, context):
     # a response that user give in first question
+    print(f"Provided value to exchange: {update.message.text.upper()}") # test purpose 
     context.user_data['currency'] = update.message.text.upper()
+    print(f"UserData in the exchanger: {context.user_data['currency']}") # test purpose 
 
     update.message.reply_text("Give amount in USD...")
     # write response from the user to the conversation handler [1]
@@ -60,10 +66,13 @@ def exchange_input_amount_USD(update, context):
 def exchange_command(update, context): 
     context.user_data['amount'] = update.message.text.upper()
 
+    print(f"UserData in the exchanger final step: {context.user_data['currency']}") # test purpose 
+
     # result of exchanging
     response = rep.exchange_response(context.user_data['currency'], context.user_data['amount'])
+    print(f"Reponse if the final part of exchanger{response}") # test purpose
     update.message.reply_text("{:.2f}".format(response))
-    return ConversationHandler.END
+    return CLEAN
 
 
 def history_input_give_currency(update, context):
@@ -85,6 +94,11 @@ def history_command(update, context):
     else: 
         pass
 
+    return CLEAN
+
+
+def clean(update, context):
+    context.user_data.clear()
     return ConversationHandler.END
 
 
@@ -103,7 +117,8 @@ conversation_handler_exchange = ConversationHandler(
             # read the answer for the first question (currency)
             CURRENCY: [MessageHandler(Filters.text, exchange_input_amount_USD)],
             # read the answer for the second question (USD amount to exchange)
-            VALUE: [MessageHandler(Filters.text, exchange_command)]},
+            VALUE: [MessageHandler(Filters.text, exchange_command)],
+            CLEAN: [MessageHandler(Filters.text, clean)]},
         
         # exit point
         fallbacks = [CommandHandler('stop', stop)]
@@ -115,7 +130,8 @@ conversation_handler_history = ConversationHandler(
         CommandHandler('history', history_input_give_currency)],
     
         states = {
-            HISTORY_CURRENCY: [MessageHandler(Filters.text, history_command)]},
+            HISTORY_CURRENCY: [MessageHandler(Filters.text, history_command)],
+            CLEAN: [MessageHandler(Filters.text, clean)]},
         
         fallbacks = [CommandHandler('stop', stop)]
 )
