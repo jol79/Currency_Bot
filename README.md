@@ -7,7 +7,7 @@ This Telegram bot will help you automate this process without writing a search q
     ![image](https://user-images.githubusercontent.com/41474876/109422432-25495780-79e4-11eb-8128-8bd4c97daa6a.png)
 
    /list
-    ![ExampleHomePage](https://user-images.githubusercontent.com/41474876/103136961-6fa11600-46cd-11eb-9d29-54ffc4413e15.png)
+    ![image](https://user-images.githubusercontent.com/41474876/109422506-81ac7700-79e4-11eb-9024-d681b097f652.png)
     
    /exchange
     ![image](https://user-images.githubusercontent.com/41474876/109422398-06e35c00-79e4-11eb-8d3f-5e48233babdf.png)
