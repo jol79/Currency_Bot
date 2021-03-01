@@ -10,6 +10,7 @@ CURRENCY = 0
 VALUE = 1
 HISTORY_CURRENCY = 0
 CLEAN = 2
+ERROR = 3
 
 print("Bot initialized")
 
@@ -31,7 +32,7 @@ def handle_message(update, context):
 
 # def error(update, context):
 #     print(f'Update {update} caused error {context.error}')
-def error(bot, update, error):
+def error(bot, update):
     if not (context.error.message == "Message is not modified"):
         logger.warning('Update "%s" caused error "%s"' % (update, context.error))
 
@@ -52,25 +53,27 @@ def exchange_input_give_currency(update, context):
 
 # CURRENCY state
 def exchange_input_amount_USD(update, context):
-    # a response that user give in first question
-    print(f"Provided value to exchange: {update.message.text.upper()}") # test purpose 
-    context.user_data['currency'] = update.message.text.upper()
-    print(f"UserData in the exchanger: {context.user_data['currency']}") # test purpose 
 
-    update.message.reply_text("Give amount in USD...")
-    # write response from the user to the conversation handler [1]
-    return VALUE
+    if update.message.text.upper() in rep.currency_base:
+        # a response that user give in first question
+        context.user_data['currency'] = update.message.text.upper()
+
+        update.message.reply_text("Give amount in USD...")
+        # write response from the user to the conversation handler [1]
+        return VALUE
+    else:
+        # wrong currency name...
+        # update.message.reply_text(f"Ups, there's no currency with that name {update.message.text.upper()}.\nPlease, select from the list: {", ".join.rep.currency_base}")
+        update.message.reply_text("Ups, there's no currency with that name")
+        return ERROR
 
 
 # VALUE state
 def exchange_command(update, context): 
     context.user_data['amount'] = update.message.text.upper()
 
-    print(f"UserData in the exchanger final step: {context.user_data['currency']}") # test purpose 
-
     # result of exchanging
     response = rep.exchange_response(context.user_data['currency'], context.user_data['amount'])
-    print(f"Reponse if the final part of exchanger{response}") # test purpose
     update.message.reply_text("{:.2f}".format(response))
     return CLEAN
 
@@ -83,18 +86,23 @@ def history_input_give_currency(update, context):
 
 
 def history_command(update, context):
-    currency = update.message.text.upper()
 
-    # contains the path to the image of a graph
-    response = rep.history_response(currency)
-    context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(response, 'rb'))
+    if update.message.text.upper() in rep.currency_base:
+        currency = update.message.text.upper()
 
-    if os.path.exists(response):
-        os.remove(response)
-    else: 
-        pass
+        # contains the path to the image of a graph
+        response = rep.history_response(currency)
+        context.bot.sendPhoto(chat_id=update.message.chat_id, photo=open(response, 'rb'))
 
-    return CLEAN
+        if os.path.exists(response):
+            os.remove(response)
+        else: 
+            pass
+
+        return CLEAN
+    else:
+        update.message.reply_text("Ups, there's no currency with that name")
+        return ERROR
 
 
 def clean(update, context):
@@ -118,7 +126,8 @@ conversation_handler_exchange = ConversationHandler(
             CURRENCY: [MessageHandler(Filters.text, exchange_input_amount_USD)],
             # read the answer for the second question (USD amount to exchange)
             VALUE: [MessageHandler(Filters.text, exchange_command)],
-            CLEAN: [MessageHandler(Filters.text, clean)]},
+            CLEAN: [MessageHandler(Filters.text, clean)],
+            ERROR: [MessageHandler(Filters.text, exchange_input_give_currency)]},
         
         # exit point
         fallbacks = [CommandHandler('stop', stop)]
@@ -131,7 +140,8 @@ conversation_handler_history = ConversationHandler(
     
         states = {
             HISTORY_CURRENCY: [MessageHandler(Filters.text, history_command)],
-            CLEAN: [MessageHandler(Filters.text, clean)]},
+            CLEAN: [MessageHandler(Filters.text, clean)],
+            ERROR: [MessageHandler(Filters.text, history_input_give_currency)]},
         
         fallbacks = [CommandHandler('stop', stop)]
 )
