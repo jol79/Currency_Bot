@@ -39,6 +39,11 @@ def list_response():
     return(result_dict)
 
 
+# get previously saved data (the last request from user <= 10 mins, data is up to date)
+def list_response_database()
+    pass
+
+
 # a result of exchange
 def exchange_response(currency, amount):
     end_point = f'{base_url}{end_path_latest}'
